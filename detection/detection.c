@@ -25,7 +25,7 @@ void getHistoCols(Image *img, size_t *tab){
     }
 }
 
-size_t findBegin( size_t *histo, size_t coord, size_t pas){  
+size_t findBegin( size_t *histo, size_t coord, size_t pas){
     while(histo[coord] == 0)
         coord += pas;
 
@@ -44,7 +44,7 @@ void cutLines(Image *image) {
     tab = malloc(sizeof(size_t) * image->lines);
 
     getHistoLines(image, tab);
-    
+
     size_t begin = findBegin(tab, 0, 1);
     size_t end = findEnd(tab, begin, 1);
 
@@ -78,12 +78,12 @@ void cutCols(Image *image) {
         getHistoLines(&newImage, subtab);
 
         Image charImage = cut(
-                            &newImage, 
-                            findBegin(subtab, 0, 1), 
-                            0, 
-                            findBegin(subtab, newImage.lines-1, -1), 
+                            &newImage,
+                            findBegin(subtab, 0, 1),
+                            0,
+                            findBegin(subtab, newImage.lines-1, -1),
                             newImage.cols - 1);
-        
+
 
         //TODO CALL NEURAL NETWORK IN ORDER TO FIND THE CHAR
 

@@ -2,8 +2,8 @@
 #include"neural.h"
 
 Network newNetwork(
-    size_t *layersSizes, 
-    size_t hiddenLayers, 
+    size_t *layersSizes,
+    size_t hiddenLayers,
     size_t logisticId) {
     Network network;
 
@@ -94,7 +94,7 @@ double forwardProp(Network *network, double *inputs) {
                     * network->synapses[i-1][k][j].weight;
             }
             network->neurons[i][j].z = sum+network->neurons[i][j].bias.weight;
-            network->neurons[i][j].value = 
+            network->neurons[i][j].value =
                 network->logistic(network->neurons[i][j].z);
         }
     }
@@ -104,8 +104,8 @@ double forwardProp(Network *network, double *inputs) {
 
 void backProp(Network *network, double wantedOutput, double output) {
 
-    network->neurons[network->hiddenLayers+1][0].delta = 
-        network->logisticPrime(network->neurons[network->hiddenLayers+1][0].z) 
+    network->neurons[network->hiddenLayers+1][0].delta =
+        network->logisticPrime(network->neurons[network->hiddenLayers+1][0].z)
         *(wantedOutput - output);
 
     double sum;
@@ -343,8 +343,7 @@ void learningFile(Network *network, char path[]) {
         maxEpochs);
     
     t = clock() - t;
-    double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
-
+    double time_taken = ((double)t)/CLOCKS_PER_SEC;
     size_t print = 1;
 
     for (int i = 0; i < 4; i++) {
