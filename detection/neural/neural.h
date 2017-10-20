@@ -48,7 +48,7 @@ struct Network {
     double learningRate;
     double errorMax;
     double momentum;
-    int maxEpochs;
+    size_t maxEpochs;
 
     size_t hiddenLayers;
 
@@ -70,7 +70,6 @@ struct Network {
 //all the element after the first one are the nb of neurons by hidden layers
 //the last element is the number of output
 //parameter hiddenLayers represent the number of hidden Layers
-//maxEpochs = -1 to no limit
 //EXAMPLE :
 //  double sigmoid(double x) {return 1 / (1 + exp(-x))};
 //  size_t tab[2] = {2,1,1};
@@ -111,7 +110,9 @@ void learning(
     double learningRate,
     double errorMax,
     double momentum,
-    int maxEpochs);
+    size_t maxEpochs);
+
+void learningFile(Network *network, char path[]);
 
 //print the network in the console
 void printNetwork(Network *network);

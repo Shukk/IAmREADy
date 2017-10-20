@@ -173,7 +173,7 @@ void learning(
     double learningRate,
     double errorMax,
     double momentum,
-    int maxEpochs) {
+    size_t maxEpochs) {
 
     network->learningRate = learningRate;
     network->errorMax = errorMax;
@@ -181,11 +181,10 @@ void learning(
     network->maxEpochs = maxEpochs;
 
     double result;
-    int maxE = network->maxEpochs;
-    int epochs = 0;
+    size_t epochs = 0;
 
     size_t nbBP = 0;
-    for (size_t i = 0; (maxE == -1 || epochs < maxE) && i < nbData; i++) {
+    for (size_t i = 0; epochs < maxEpochs && i < nbData; i++) {
         result = forwardProp(network, in[i]);
         //printf("%f\n", fabs(out[i] - result));
         if (fabs(out[i] - result) > network->errorMax) {
@@ -202,7 +201,7 @@ void learning(
 
         epochs++;
 
-        if (epochs >= maxE) {
+        if (epochs >= maxEpochs) {
             i = -1;
             epochs = 0;
             nbBP = 0;
@@ -211,7 +210,159 @@ void learning(
         }
     }
 
-    printf("\nepochs : %d",epochs);
+    printf("\nepochs : %zu",epochs);
+}
+
+void learningFile(Network *network, char path[]) {
+    FILE *file = NULL;
+
+    file = fopen(path, "r+");
+    if (file == NULL)
+        errx(1, "CAN NOT OPEN THE FILE");
+
+    int achar = 0;
+    size_t passdot = 0;
+    size_t ord = 10;
+
+
+    int line = 0;
+
+    size_t nbData = 0;
+    double learningRate = 0.0;
+    double errorMax = 0.0;
+    double momentum = 0.0;
+    size_t maxEpochs = 0;
+
+    double **in;
+    double *out;
+
+    do {
+        achar = fgetc(file);
+        
+        if (achar == 10) {
+            if (line == 0) {
+                in = malloc(sizeof(double) * nbData);
+                for (size_t i = 0; i < nbData; i++)
+                    in[i] = malloc(sizeof(double) * network->layersSizes[0]);
+
+                out = malloc(sizeof(double) * nbData);
+            }
+
+            if (line >= 4)
+                ord = 0;
+            else
+                ord = 10;
+
+            line++;
+            passdot = 0;
+            continue;
+        }
+
+        switch (line) {
+            case 0:
+                nbData = nbData * 10 + achar - 48;
+                break;
+
+            case 1:
+                if (achar == 46)
+                    passdot = 1;
+                else if (passdot == 1) {
+                    learningRate += (achar - 48.0) / ord;
+                    ord *= 10;
+                } else
+                    learningRate = learningRate * 10 + achar - 48;
+                break;
+
+            case 2:
+                if (achar == 46)
+                    passdot = 1;
+                else if (passdot == 1) {
+                    errorMax += (achar - 48.0) / ord;
+                    ord *= 10;
+                } else
+                    errorMax = errorMax * 10 + achar - 48;
+                break;
+
+            case 3:
+                if (achar == 46)
+                    passdot = 1;
+                else if (passdot == 1) {
+                    momentum += (achar - 48.0) / ord;
+                    ord *= 10;
+                } else
+                    momentum = momentum * 10 + achar - 48;
+                break;
+
+            case 4:
+                maxEpochs = maxEpochs * 10 + achar - 48;
+                break;
+
+            break;
+
+            default:
+                if (achar == EOF)
+                    continue;
+                else if (achar == 62)
+                    passdot = 1;
+                else if (passdot == 1)
+                    out[line-5] = achar - 48;
+                else {
+                    in[line-5][ord] = achar - 48;
+                    ord++;
+                }
+                break;
+
+        }
+
+    } while (achar != EOF); 
+
+    printf("nbData : %zu\n", nbData);
+    printf("learningRate : %f\n", learningRate);
+    printf("errorMax : %f\n", errorMax);
+    printf("momentum : %f\n", momentum);
+    printf("maxEpochs : %zu\n", maxEpochs);
+
+    for (size_t i = 0; i < nbData; i++) {
+        for (size_t j = 0; j < network->layersSizes[0]; j++)
+            printf("%f,", in[i][j]);
+        printf("->%f\n", out[i]);
+    }
+
+
+    clock_t t;
+    t = clock();
+
+    learning(
+        network, 
+        nbData, 
+        in, 
+        out, 
+        learningRate, 
+        errorMax, 
+        momentum, 
+        maxEpochs);
+    
+    t = clock() - t;
+    double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
+
+    size_t print = 1;
+
+    for (int i = 0; i < 4; i++) {
+        out[i] = forwardProp(network, in[i]);
+    }
+
+    if (print == 1) {
+
+        printWeights(network);
+
+        printf("\n%fs\n", time_taken);
+
+        for (int i = 0; i < 4; i++)
+            printf("i:%d -> %f\n", i, out[i]);
+    }
+    printf("\n");
+
+    fclose(file);
 }
 
 void printNetwork(Network *network) {
@@ -278,7 +429,7 @@ void testXOR() {
     clock_t t;
     t = clock();
 
-    learning(&network, 4, in, wout, 0.03, 0.01, 0.9, 900000);
+    learning(&network, 4, in, wout, 0.03, 0.001, 0.9, 900000);
     
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
