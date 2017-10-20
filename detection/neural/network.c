@@ -116,7 +116,7 @@ void backProp(Network *network, double wantedOutput, double output) {
                 sum += network->synapses[i][j][k].weight
                     * network->neurons[i + 1][k].delta;
             }
-            network->neurons[i][j].delta = 
+            network->neurons[i][j].delta =
                 network->logisticPrime(network->neurons[i][j].z) * sum;
         }
     }
@@ -127,21 +127,21 @@ void updateWeightsDelta(Network *network) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
             for (size_t k = 0; k < network->layersSizes[i + 1]; k++) {
                 network->synapses[i][j][k].delta =
-                    network->synapses[i][j][k].delta 
+                    network->synapses[i][j][k].delta
                     * network->momentum
                     + network->learningRate
-                    * network->neurons[i+1][k].delta 
+                    * network->neurons[i+1][k].delta
                     * network->neurons[i][j].value;
             }
         }
     }
     for (size_t i = network->hiddenLayers+1; i > 1; i--) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
-            network->neurons[i][j].bias.delta = 
-                network->neurons[i][j].bias.delta 
+            network->neurons[i][j].bias.delta =
+                network->neurons[i][j].bias.delta
                 * network->momentum
                 + network->learningRate
-                * network->neurons[i][j].delta 
+                * network->neurons[i][j].delta
                 * network->neurons[i][j].value;
         }
     }
@@ -151,14 +151,14 @@ void updateWeights(Network *network) {
     for (size_t i = network->hiddenLayers; i+1 > 0; i--) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
             for (size_t k = 0; k < network->layersSizes[i + 1]; k++) {
-                network->synapses[i][j][k].weight += 
+                network->synapses[i][j][k].weight +=
                     network->synapses[i][j][k].delta;
             }
         }
     }
     for (size_t i = network->hiddenLayers+1; i > 1; i--) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
-            network->neurons[i][j].bias.weight += 
+            network->neurons[i][j].bias.weight +=
                 network->neurons[i][j].bias.delta;
         }
     }
@@ -166,9 +166,9 @@ void updateWeights(Network *network) {
 
 
 void learning(
-    Network *network, 
-    size_t nbData, 
-    double **in, 
+    Network *network,
+    size_t nbData,
+    double **in,
     double *out,
     double learningRate,
     double errorMax,
@@ -216,7 +216,7 @@ void learning(
 void learningFile(Network *network, char path[]) {
     FILE *file = NULL;
 
-    file = fopen(path, "r+");
+    file = fopen(path, "r");
     if (file == NULL)
         errx(1, "CAN NOT OPEN THE FILE");
 
@@ -238,7 +238,7 @@ void learningFile(Network *network, char path[]) {
 
     do {
         achar = fgetc(file);
-        
+
         if (achar == 10) {
             if (line == 0) {
                 in = malloc(sizeof(double) * nbData);
@@ -314,7 +314,7 @@ void learningFile(Network *network, char path[]) {
 
         }
 
-    } while (achar != EOF); 
+    } while (achar != EOF);
 
     printf("nbData : %zu\n", nbData);
     printf("learningRate : %f\n", learningRate);
@@ -333,15 +333,15 @@ void learningFile(Network *network, char path[]) {
     t = clock();
 
     learning(
-        network, 
-        nbData, 
-        in, 
-        out, 
-        learningRate, 
-        errorMax, 
-        momentum, 
+        network,
+        nbData,
+        in,
+        out,
+        learningRate,
+        errorMax,
+        momentum,
         maxEpochs);
-    
+
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC;
     size_t print = 1;
@@ -362,7 +362,27 @@ void learningFile(Network *network, char path[]) {
     printf("\n");
 
     fclose(file);
+    for (size_t i = 0; i < nbData; i++)
+        free(in[i]);
+    free(in);
+    free(out);
 }
+
+void createTraining(char path[]) {
+    FILE* file = NULL;
+ 
+    file = fopen(path, "r");
+
+    if (file == NULL) {
+        printf("the file does not exist. Creating file ...\n");
+
+    }
+    else {
+        fclose(file);
+        file = fopen(path, "a+");
+    }
+}
+
 
 void printNetwork(Network *network) {
     printf("NEURONS : \n");
@@ -382,9 +402,9 @@ void printNetwork(Network *network) {
         printf("    [\n");
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
             printf("        [");
-            for (size_t k = 0; k < network->layersSizes[i + 1] - 1; k++) 
+            for (size_t k = 0; k < network->layersSizes[i + 1] - 1; k++)
                 printf("%f,", network->synapses[i][j][k].weight);
-            printf("%f", 
+            printf("%f",
                 network->synapses[i][j][network->layersSizes[i+1]-1].weight);
             printf("]\n");
         }
@@ -397,7 +417,7 @@ void printWeights(Network *network) {
     printf("\n");
     for (size_t i = 0; i < network->hiddenLayers + 1; i++) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
-            for (size_t k = 0; k < network->layersSizes[i + 1]; k++) 
+            for (size_t k = 0; k < network->layersSizes[i + 1]; k++)
                 printf("%f | ", network->synapses[i][j][k].weight);
         }
     }
@@ -417,10 +437,10 @@ void testXOR() {
     printWeights(&network);
     //printf("\nOUI\n");
 
-    double *in[] = 
-        {(double[]){0.0, 0.0}, 
-        (double[]){0.0, 1.0}, 
-        (double[]){1.0, 0.0}, 
+    double *in[] =
+        {(double[]){0.0, 0.0},
+        (double[]){0.0, 1.0},
+        (double[]){1.0, 0.0},
         (double[]){1.0, 1.0}};
     double wout[4] = {0.0, 1.0, 1.0, 0.0};
     double out[4] = {-1.0, -1.0, -1.0, -1.0};
@@ -429,7 +449,7 @@ void testXOR() {
     t = clock();
 
     learning(&network, 4, in, wout, 0.03, 0.001, 0.9, 900000);
-    
+
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
 
@@ -456,21 +476,21 @@ void testXOR() {
     }
     printf("\n");
     //printNetwork(&network);
-    
+
     killNetwork(&network);
 }
 
 void testAND() {
     size_t layersSize[] = {2, 2, 1};
-    Network network = 
+    Network network =
         newNetwork(layersSize, 1, 2);
 
     printNetwork(&network);
 
-    double *in[] = 
-        {(double[]){0.0, 0.0}, 
-        (double[]){0.0, 1.0}, 
-        (double[]){1.0, 0.0}, 
+    double *in[] =
+        {(double[]){0.0, 0.0},
+        (double[]){0.0, 1.0},
+        (double[]){1.0, 0.0},
         (double[]){1.0, 1.0}};
     double wout[4] = {0.0, 0.0, 0.0, 1.0};
     double out[4] = {-1.0, -1.0, -1.0, -1.0};
@@ -479,7 +499,7 @@ void testAND() {
     t = clock();
 
     learning(&network, 4, in, wout, 0.03, 0.1, 0.9, 9000);
-    
+
     t = clock() - t;
     double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
 
@@ -490,6 +510,6 @@ void testAND() {
         printf("i:%d -> %f\n", i, out[i]);
     }
     printNetwork(&network);
-    
+
     killNetwork(&network);
 }

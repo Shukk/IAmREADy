@@ -35,6 +35,7 @@ Image resize(Image *image, size_t newLines, size_t newCols);
 
 //resize the image with propotion
 Image resizeWithProp(Image *image, size_t max);
+
 //--------------------
 //		SDL
 //--------------------

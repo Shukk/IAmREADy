@@ -5,6 +5,7 @@
 # include <stdlib.h>
 # include <time.h>
 # include <math.h>
+# include <err.h>
 # include "../process/process.h"
 
 //--------------------
@@ -35,9 +36,15 @@ size_t findBegin( size_t *histo, size_t coord, size_t pas);
 size_t findEnd(size_t *histo, size_t coord, size_t pas);
 
 //cutLines and call cutCols
-void cutLines(Image *image);
+//to detect char learn = 0
+//to learn learn = 1
+//file is the file to learn
+void cutLines(Image *image, size_t learn, char file[]);
 
 //cutCols
-void cutCols(Image *image);
+//to detect char learn = 0
+//to learn learn = 1
+//file is the file to learn
+void cutCols(Image *image, size_t learn, char file[]);
 
 #endif

@@ -2,7 +2,7 @@
 
 
 void greyscale(SDL_Surface *img){
-    
+
     Uint8 r;
     Uint8 g;
     Uint8 b;
@@ -11,10 +11,10 @@ void greyscale(SDL_Surface *img){
         for (int h = 0; h < img ->h; h++) {
             SDL_GetRGB(getpixel(img, w, h), img->format, &r, &g, &b);
             luminance = 0.3*r + 0.59*g + 0.11*b;
-            putpixel(img, w, h, SDL_MapRGB(img->format, luminance, luminance, 
+            putpixel(img, w, h, SDL_MapRGB(img->format, luminance, luminance,
             luminance));
         }
-    }    
+    }
 }
 
 
@@ -32,29 +32,29 @@ void otsu(SDL_Surface *img){
             histo[pix] += 1;
         }
     }
-    
+
     int total = img->w * img->h;
-    
+
     float sum = 0;
     for (int t = 0; t < 256; t++)
         sum += t * histo[t];
-        
+
     float sumB = 0;
     int wB = 0;
     int wF = 0;
-    
+
     float varMax = 0;
     int threshold = 0;
-    
+
     for(int t = 0; t < 256; t++){
         wB += histo[t];
-        if (wB == 0) 
+        if (wB == 0)
             continue;
 
         wF = total - wB;
         if (wF == 0)
             break;
-        
+
         sumB += (float)(t * histo[t]);
 
         float mB = sumB / wB;
@@ -112,15 +112,15 @@ Image binarize(SDL_Surface *img){
      for (size_t i = 0; i < image.lines; i++) {
         for (size_t j = 0; j < image.cols; j++) {
             SDL_GetRGB(getpixel(img, j, i), img->format, &r, &g, &b);
-            
+
             if (r == 0)
                 image.matrix[i][j] = 0;
             else
                 image.matrix[i][j] = 1;
-            
+
         }
      }
-     return image;   
+     return image;
 }
 
 

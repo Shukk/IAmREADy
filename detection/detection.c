@@ -39,7 +39,7 @@ size_t findEnd(size_t *histo, size_t coord, size_t pas){
     return coord-1;
 }
 
-void cutLines(Image *image) {
+void cutLines(Image *image, size_t learn, FILE* file) {
     size_t *tab;
     tab = malloc(sizeof(size_t) * image->lines);
 
@@ -51,7 +51,7 @@ void cutLines(Image *image) {
     while(end < image->lines) {
         Image newImage = cut(image, begin, 0, end, image->cols - 1);
 
-        cutCols(&newImage);
+        cutCols(&newImage, learn, file);
 
         begin = findBegin(tab, end + 1, 1);
         end = findEnd(tab, begin, 1);
@@ -60,7 +60,7 @@ void cutLines(Image *image) {
     free(tab);
 }
 
-void cutCols(Image *image) {
+void cutCols(Image *image, size_t learn, FILE* file) {
     size_t *tab;
     tab = malloc(sizeof(size_t) * image->cols);
 
@@ -84,15 +84,39 @@ void cutCols(Image *image) {
                             findBegin(subtab, newImage.lines-1, -1),
                             newImage.cols - 1);
 
-
-        //TODO CALL NEURAL NETWORK IN ORDER TO FIND THE CHAR
-
         Image resizeCharImage = resizeWithProp(&charImage, 50);
 
-        char str[32];
+        if (learn == 1) {
+            //TODO CALL NEURAL NETWORK IN ORDER TO FIND THE CHAR
 
-        sprintf(str, "chars/c:%zu%zu.jpg", begin, end);
-        SDL_SaveBMP(imageToSDLSurface(&resizeCharImage), str);
+            /*char str[32];
+
+            sprintf(str, "chars/mins/%d%zu%zu.jpg", 
+                (int)randomizeDouble(0, 100), begin, end);
+            SDL_SaveBMP(imageToSDLSurface(&resizeCharImage), str);*/
+
+            int imageValue = 0;
+            //display_image(imageToSDLSurface(&resizeCharImage));
+            for (size_t i = 0; i < resizeCharImage.lines; i++) {
+                printf("\n");
+                for (size_t j = 0; j < resizeCharImage.cols; j++)
+                    printf("%zu", resizeCharImage.matrix[i][j]);
+            }
+            printf("\n");
+
+            printf("ENTER A VALUE : \n");
+            while (imageValue < 33 || imageValue > 126)
+                imageValue = getchar();
+         
+            if (file == NULL)
+                errx(1, "ERROR THE FILE IS NULL");
+
+            for (size_t i = 0; i < resizeCharImage.lines; i++) {
+                for (size_t j = 0; j < resizeCharImage.cols; j++)
+                    fprintf(file, "%zu", resizeCharImage.matrix[i][j]);
+            }
+            fprintf(file, ">%d\n", imageValue); 
+        }
 
         begin = findBegin(tab, end + 1, 1);
         end = findEnd(tab, begin, 1);

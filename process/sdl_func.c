@@ -47,17 +47,17 @@ SDL_Surface* display_image(SDL_Surface *img) {
         errx(1, "Couldn't set %dx%d video mode: %s\n",
                  img->w, img->h, SDL_GetError());
     }
- 
+
     /* Blit onto the screen surface */
     if(SDL_BlitSurface(img, NULL, screen, NULL) < 0)
         warnx("BlitSurface error: %s\n", SDL_GetError());
- 
+
     // Update the screen
     SDL_UpdateRect(screen, 0, 0, img->w, img->h);
- 
+
     // wait for a key
     wait_for_keypressed();
- 
+
     // return the screen for further uses
     return screen;
 }
@@ -71,8 +71,8 @@ SDL_Surface* imageToSDLSurface(Image *image) {
         for(size_t j = 0; j < image->cols; j++) {
             size_t currentPixel = image->matrix[i][j];
             putpixel(surface, j, i, SDL_MapRGB(
-                                        surface->format, 
-                                        currentPixel * 255, 
+                                        surface->format,
+                                        currentPixel * 255,
                                         currentPixel * 255,
                                         currentPixel * 255));
         }
@@ -80,13 +80,13 @@ SDL_Surface* imageToSDLSurface(Image *image) {
     return surface;
 }
 
- 
+
 static inline
 Uint8* pixelref(SDL_Surface *surf, unsigned x, unsigned y) {
     int bpp = surf->format->BytesPerPixel;
     return (Uint8*)surf->pixels + y * surf->pitch + x * bpp;
 }
- 
+
 Uint32 getpixel(SDL_Surface *surface, unsigned x, unsigned y) {
     Uint8 *p = pixelref(surface, x, y);
     switch(surface->format->BytesPerPixel) {
@@ -104,7 +104,7 @@ Uint32 getpixel(SDL_Surface *surface, unsigned x, unsigned y) {
     }
     return 0;
 }
- 
+
 void putpixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel) {
     Uint8 *p = pixelref(surface, x, y);
     switch(surface->format->BytesPerPixel) {
@@ -133,7 +133,7 @@ void putpixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel) {
 
 Uint8 getGreyPixel(SDL_Surface *img, int i, int j){
     Uint8 r, g, b;
-    SDL_GetRGB(getpixel(img, i, j), img->format, &r, &g, &b); 
-    return r;       
+    SDL_GetRGB(getpixel(img, i, j), img->format, &r, &g, &b);
+    return r;
 
 }

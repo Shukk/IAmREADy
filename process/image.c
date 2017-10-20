@@ -1,9 +1,9 @@
 #include "process.h"
 #include <math.h>
 
- // Create a new image of type Image with its dimensions 
-Image newImage(size_t lines, size_t cols){ 
-   
+ // Create a new image of type Image with its dimensions
+Image newImage(size_t lines, size_t cols){
+
     Image img;
     img.lines = lines;
     img.cols = cols;

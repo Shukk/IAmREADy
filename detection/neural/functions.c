@@ -29,19 +29,19 @@ double tanhPrime(double x) {
 }
 
 func_t getFunc(size_t id) {
-	if (id == 1)
-		return linear;
-	else if (id == 2)
-		return tannh;
-	else
-		return sigmoid;
+    if (id == 1)
+        return linear;
+    else if (id == 2)
+        return tannh;
+    else
+        return sigmoid;
 }
 
 func_t getFuncPrime(size_t id) {
-	if (id == 1)
-		return linearPrime;
-	else if (id == 2)
-		return tanhPrime;
-	else
-		return sigmoidPrime;
+    if (id == 1)
+        return linearPrime;
+    else if (id == 2)
+        return tanhPrime;
+    else
+        return sigmoidPrime;
 }
