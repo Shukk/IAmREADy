@@ -50,7 +50,8 @@ void cutLines(Image *image, size_t learn, FILE* file) {
 
     while(end < image->lines) {
         Image newImage = cut(image, begin, 0, end, image->cols - 1);
-        display_image(imageToSDLSurface(&newImage));
+        if (learn == 2)
+            display_image(imageToSDLSurface(&newImage));
 
         cutCols(&newImage, learn, file);
 
@@ -84,8 +85,8 @@ void cutCols(Image *image, size_t learn, FILE* file) {
                             0,
                             findBegin(subtab, newImage.lines-1, -1),
                             newImage.cols - 1);
-
-        display_image(imageToSDLSurface(&charImage));
+        if (learn == 2)
+            display_image(imageToSDLSurface(&charImage));
 
         Image resizeCharImage = resizeWithProp(&charImage, 28);
 
@@ -118,8 +119,8 @@ void cutCols(Image *image, size_t learn, FILE* file) {
                     fprintf(file, "%zu", resizeCharImage.matrix[i][j]);
             }
             fprintf(file, ">%d\n", imageValue); 
-        }
-        display_image(imageToSDLSurface(&resizeCharImage));
+        } else if (learn == 2)
+            display_image(imageToSDLSurface(&resizeCharImage));
 
         begin = findBegin(tab, end + 1, 1);
         end = findEnd(tab, begin, 1);

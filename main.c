@@ -8,9 +8,14 @@
 int main() {
     init_sdl();
     SDL_Surface *surface = load_image("numbers.png");
+    display_image(surface);
+    greyscale(surface);
+    display_image(surface);
     otsu(surface);
+    display_image(surface);
     Image image = binarize(surface);
-    cutLines(&image, 0, NULL);
+    display_image(imageToSDLSurface(&image));
+    cutLines(&image, 2, NULL);
     /*Image newImage = resizeWithProp(&image, 100);
     SDL_SaveBMP(imageToSDLSurface(&newImage), "newTST.jpg");*/
 
