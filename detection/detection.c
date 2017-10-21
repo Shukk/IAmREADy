@@ -50,6 +50,7 @@ void cutLines(Image *image, size_t learn, FILE* file) {
 
     while(end < image->lines) {
         Image newImage = cut(image, begin, 0, end, image->cols - 1);
+        display_image(imageToSDLSurface(&newImage));
 
         cutCols(&newImage, learn, file);
 
@@ -84,7 +85,9 @@ void cutCols(Image *image, size_t learn, FILE* file) {
                             findBegin(subtab, newImage.lines-1, -1),
                             newImage.cols - 1);
 
-        Image resizeCharImage = resizeWithProp(&charImage, 50);
+        display_image(imageToSDLSurface(&charImage));
+
+        Image resizeCharImage = resizeWithProp(&charImage, 28);
 
         if (learn == 1) {
             //TODO CALL NEURAL NETWORK IN ORDER TO FIND THE CHAR
@@ -96,7 +99,6 @@ void cutCols(Image *image, size_t learn, FILE* file) {
             SDL_SaveBMP(imageToSDLSurface(&resizeCharImage), str);*/
 
             int imageValue = 0;
-            //display_image(imageToSDLSurface(&resizeCharImage));
             for (size_t i = 0; i < resizeCharImage.lines; i++) {
                 printf("\n");
                 for (size_t j = 0; j < resizeCharImage.cols; j++)
@@ -117,6 +119,7 @@ void cutCols(Image *image, size_t learn, FILE* file) {
             }
             fprintf(file, ">%d\n", imageValue); 
         }
+        display_image(imageToSDLSurface(&resizeCharImage));
 
         begin = findBegin(tab, end + 1, 1);
         end = findEnd(tab, begin, 1);

@@ -39,12 +39,12 @@ size_t findEnd(size_t *histo, size_t coord, size_t pas);
 //to detect char learn = 0
 //to learn learn = 1
 //file is the file to learn
-void cutLines(Image *image, size_t learn, char file[]);
+void cutLines(Image *image, size_t learn, FILE* file);
 
 //cutCols
 //to detect char learn = 0
 //to learn learn = 1
 //file is the file to learn
-void cutCols(Image *image, size_t learn, char file[]);
+void cutCols(Image *image, size_t learn, FILE* file);
 
 #endif

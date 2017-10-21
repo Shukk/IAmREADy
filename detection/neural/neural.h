@@ -114,6 +114,8 @@ void learning(
 
 void learningFile(Network *network, char path[]);
 
+void createTraining(char filePath[], char imagePath[]);
+
 //print the network in the console
 void printNetwork(Network *network);
 void printWeights(Network *network);

@@ -15,7 +15,7 @@ Synapse newSynapse() {
     Synapse synapse;
 
     //synapse.weight = randomizeDouble(-1.0, 1.0);
-    synapse.weight = gaussRandom(-1.0, 1.0);
+    synapse.weight = gaussRandom(-3.0, 3.0);
     synapse.delta = 0.0;
 
     return synapse;
