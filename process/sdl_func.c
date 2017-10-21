@@ -137,3 +137,64 @@ Uint8 getGreyPixel(SDL_Surface *img, int i, int j){
     return r;
 
 }
+
+void convolution(SDL_Surface *img, int **mat, int div, int size){  
+     int ml = (size-1)/2;
+     for(int y = ml; y < img->w; y++){
+        for(int x = ml; x < img->h; x++){
+            double sumR = 0;
+            double sumG = 0;
+            double sumB = 0;
+            for(int i = -ml; i <= ml; i++){
+                for(int j = -ml; j <= ml; j++){
+                    Uint8 r, g, b;
+                    SDL_GetRGB(getpixel(img, y + j, x + i),img->format, &r, &g
+                    ,&b);
+
+                    int cm = mat[j + ml][i + ml];
+                    sumR += r * cm / div;
+                    sumG += g * cm / div;
+                    sumB += b * cm / div;
+                }
+            }
+
+            putpixel(img, y, x, SDL_MapRGB(img->format, sumR, sumG, sumB));
+        }
+     }
+    
+}
+
+/*void gaussian(SDL_Surface *img){
+    int *mat[] = {(int []){0,0,1,1,1,0,0}, 
+                (int []){0,1,3,3,3,1,0},
+                (int []){1,3,0,3-7,0,3,1},
+                (int []){1,3,-7,-24,-7,3,1},
+                (int []){1,3,0,-7,0,3,1},
+                (int []){0,1,3,3,3,1,0},
+                (int []){0,0,1,1,1,0,0}};
+    convolution(img, mat,40,7);
+    
+}*/
+void gaussian(SDL_Surface *img){
+    int *mat[] = {(int []){1,4,7,4,1}, 
+                (int []){4,16,26,16,4},
+                (int []){7,26,41,26,7},
+                (int []){4,16,26,16,4},
+                (int []){1,4,7,4,1}};
+    convolution(img, mat,273,5);
+    
+}
+/*void gauvoid gaussian(SDL_Surface *img){
+    int *mat[] = {(int []){1,2,1}, 
+                (int []){2,4,2},
+                (int []){1,2,1}};
+    convolution(img, mat,16,3);
+    
+}*/
+void contrast(SDL_Surface *img){
+    int *mat[] = {(int []){0, -1, 0}, 
+                (int []){-1,5,-1},
+                (int []){0,-1,0}};
+    convolution(img, mat,1,3);
+    
+}

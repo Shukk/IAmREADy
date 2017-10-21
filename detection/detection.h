@@ -16,6 +16,8 @@ double randomizeDouble();
 
 double gaussRandom(double min, double max);
 
+void swap(int *a, int *b);
+
 //--------------------
 //	   DETECTION
 //--------------------

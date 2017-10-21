@@ -88,7 +88,7 @@ void cutCols(Image *image, size_t learn, FILE* file) {
         if (learn == 2)
             display_image(imageToSDLSurface(&charImage));
 
-        Image resizeCharImage = resizeWithProp(&charImage, 28);
+        Image resizeCharImage = resizeWithProp(&charImage, 32);
 
         if (learn == 1) {
             //TODO CALL NEURAL NETWORK IN ORDER TO FIND THE CHAR
@@ -118,7 +118,19 @@ void cutCols(Image *image, size_t learn, FILE* file) {
                 for (size_t j = 0; j < resizeCharImage.cols; j++)
                     fprintf(file, "%zu", resizeCharImage.matrix[i][j]);
             }
-            fprintf(file, ">%d\n", imageValue); 
+
+            fprintf(file, ">"); 
+
+            //TODO CHANGE TO ADAPT THE NETWORK
+            imageValue = imageValue - 48;
+            for (int i = 0; i < 10; i++) {
+                if (i == imageValue)
+                    fprintf(file, "%d", 1);
+                else
+                    fprintf(file, "%d", 0);
+            }
+
+            fprintf(file, "\n"); 
         } else if (learn == 2)
             display_image(imageToSDLSurface(&resizeCharImage));
 

@@ -18,7 +18,7 @@ Network newNetwork(
         if (network.neurons[i] == NULL)
             errx(1, "ALLOC ERROR network neurons i:%zu", i);
         for (size_t j = 0; j < layersSizes[i]; j++) {
-            network.neurons[i][j] = newNeuron();
+            network.neurons[i][j] = newNeuron(layersSizes[0]);
         }
     }
 
@@ -34,7 +34,7 @@ Network newNetwork(
             if (network.synapses[i][j] == NULL)
                 errx(1, "ALLOC ERROR network synapses i:%zu j:%zu", i, j);
             for (size_t k = 0; k < layersSizes[i + 1]; k++)
-                network.synapses[i][j][k] = newSynapse();
+                network.synapses[i][j][k] = newSynapse(layersSizes[0]);
         }
     }
 
@@ -48,14 +48,14 @@ Network newNetwork(
 void reinitNetwork(Network *network) {
     for (size_t i = 0; i < (network->hiddenLayers + 2); i++) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
-            network->neurons[i][j] = newNeuron();
+            network->neurons[i][j] = newNeuron(network->layersSizes[0]);
         }
     }
 
     for (size_t i = 0; i < network->hiddenLayers + 1; i++) {
         for (size_t j = 0; j < network->layersSizes[i]; j++) {
             for (size_t k = 0; k < network->layersSizes[i + 1]; k++)
-                network->synapses[i][j][k] = newSynapse();
+                network->synapses[i][j][k]=newSynapse(network->layersSizes[0]);
         }
     }
 }
@@ -80,7 +80,7 @@ void killNetwork(Network *network) {
     network->synapses = NULL;
 }
 
-double forwardProp(Network *network, double *inputs) {
+double* forwardProp(Network *network, double *inputs) {
     for (size_t i = 0; i < network->layersSizes[0]; i++)
         network->neurons[0][i].value = inputs[i];
 
@@ -99,14 +99,23 @@ double forwardProp(Network *network, double *inputs) {
         }
     }
 
-    return network->neurons[network->hiddenLayers + 1][0].value;
+    double *out = 
+        malloc(sizeof(double) * network->layersSizes[network->hiddenLayers+1]);
+
+    for (size_t i = 0; i < network->layersSizes[network->hiddenLayers+1]; i++)
+        out[i] = network->neurons[network->hiddenLayers+1][i].value;
+
+    return out;
 }
 
-void backProp(Network *network, double wantedOutput, double output) {
+void backProp(Network *network, double *wantedOutput, double *output) {
 
-    network->neurons[network->hiddenLayers+1][0].delta =
-        network->logisticPrime(network->neurons[network->hiddenLayers+1][0].z)
-        *(wantedOutput - output);
+    for (size_t i = 0; i < network->layersSizes[network->hiddenLayers+1]; i++){
+        network->neurons[network->hiddenLayers+1][i].delta =
+            network->logisticPrime(
+                network->neurons[network->hiddenLayers+1][0].z)
+            * (wantedOutput[i] - output[i]);
+    }
 
     double sum;
     for (size_t i = network->hiddenLayers; i >= 1; i--) {
@@ -169,7 +178,7 @@ void learning(
     Network *network,
     size_t nbData,
     double **in,
-    double *out,
+    double **out,
     double learningRate,
     double errorMax,
     double momentum,
@@ -180,35 +189,40 @@ void learning(
     network->momentum = momentum;
     network->maxEpochs = maxEpochs;
 
-    double result;
+    double *results = 
+        malloc(sizeof(double)*network->layersSizes[network->hiddenLayers+1]);
     size_t epochs = 0;
 
-    size_t nbBP = 0;
     for (size_t i = 0; epochs < maxEpochs && i < nbData; i++) {
         //printf("%zu\n", epochs);
-        result = forwardProp(network, in[i]);
-        printf("%f\n", fabs(out[i] - result));
-        if (fabs(out[i] - result) > network->errorMax) {
-            backProp(network, out[i], result);
+        results = forwardProp(network, in[i]);
+        //printf("%f\n", fabs(out[i] - result));
+        /*if (fabs(out[i][0] - results[0]) > network->errorMax) {
+            backProp(network, out[i], results);
             updateWeightsDelta(network);
             nbBP++;
-        }
+        }*/
+
+        backProp(network, out[i], results);
+        updateWeightsDelta(network);
 
         if (i == nbData - 1 && nbBP > 0) {
             i = -1;
             nbBP = 0;
             updateWeights(network);
+            epochs++;
         }
 
-        epochs++;
 
-        if (epochs >= maxEpochs) {
+        /*if (epochs >= maxEpochs) {
             i = -1;
             epochs = 0;
             nbBP = 0;
             reinitNetwork(network);
-            //printf("FAIL TRY OTHER WEIGHTS\n");
-        }
+            printf("FAIL TRY OTHER WEIGHTS\n");
+        }*/
+
+        free(results);
     }
 
     printf("\nepochs : %zu",epochs);
@@ -234,7 +248,7 @@ void learningFile(Network *network, char path[]) {
     size_t maxEpochs = 0;
 
     double **in;
-    double *out;
+    double **out;
 
     do {
         achar = fgetc(file);
@@ -255,6 +269,11 @@ void learningFile(Network *network, char path[]) {
         in[i] = malloc(sizeof(double) * network->layersSizes[0]);
 
     out = malloc(sizeof(double) * nbData);
+    for (size_t i = 0; i < nbData; i++) {
+        out[i] = malloc(
+                    sizeof(double)
+                    * network->layersSizes[network->hiddenLayers+1]);
+    }
 
     printf("nbData : %zu\n", nbData);
     printf("learningRate : %f\n", learningRate);
@@ -270,21 +289,27 @@ void learningFile(Network *network, char path[]) {
             line++;
             ord = 0;
             passdot = 0;
-        } else if (achar == 62)
+        } else if (achar == 62) {
             passdot = 1;
-        else if (passdot == 1)
-            out[line] = achar - 48;
+            ord = 0;
+        } else if (passdot == 1) {
+            out[line][ord] = achar - 48;
+            ord++;
+        }
         else {
             in[line][ord] = achar - 48;
             ord++;
         }
     } while (achar != EOF);
 
-    /*for (size_t i = 0; i < nbData; i++) {
+    for (size_t i = 0; i < nbData; i++) {
         for (size_t j = 0; j < network->layersSizes[0]; j++)
             printf("%f,", in[i][j]);
-        printf("->%f\n", out[i]);
-    }*/
+        printf("->");
+        for (size_t j = 0; j<network->layersSizes[network->hiddenLayers+1];j++)
+            printf("%f", out[i][j]);
+        printf("\n");
+    }
 
 
     clock_t t;
@@ -304,9 +329,8 @@ void learningFile(Network *network, char path[]) {
     double time_taken = ((double)t)/CLOCKS_PER_SEC;
     size_t print = 1;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
         out[i] = forwardProp(network, in[i]);
-    }
 
     if (print == 1) {
 
@@ -314,14 +338,20 @@ void learningFile(Network *network, char path[]) {
 
         printf("\n%fs\n", time_taken);
 
-        for (int i = 0; i < 4; i++)
-            printf("i:%d -> %f\n", i, out[i]);
+        for (int i = 0; i < 4; i++) {
+            printf("i:%d ->", i);
+            for(size_t j=0;j<network->layersSizes[network->hiddenLayers+1];j++)
+                printf("%f ", out[i][j]);
+            printf("\n");
+        }
     }
     printf("\n");
 
     fclose(file);
-    for (size_t i = 0; i < nbData; i++)
+    for (size_t i = 0; i < nbData; i++) {
         free(in[i]);
+        free(out[i]);
+    }
     free(in);
     free(out);
 }
@@ -414,10 +444,10 @@ void printWeights(Network *network) {
 
 
 //TODELETE FUNCTION ITS JUST A COPY FROM THE PERSONAL MAIN
-void testXOR() {
+/*void testXOR() {
 
-    /*int seed = time(NULL);
-    srand(seed);*/
+    //int seed = time(NULL);
+    //srand(seed);
 
     size_t layersSize[] = {2, 3, 1};
     Network network = newNetwork(layersSize, 1, 2);
@@ -448,8 +478,8 @@ void testXOR() {
     for (int i = 0; i < 4; i++) {
         out[i] = forwardProp(&network, in[i]);
         //printf("i:%d -> %f | ", i, out[i]);
-        /*if (out[i] != out[i])
-            print = 1;*/
+        //if (out[i] != out[i])
+        //   print = 1;
     }
     //printf("\n");
 
@@ -500,4 +530,4 @@ void testAND() {
     printNetwork(&network);
 
     killNetwork(&network);
-}
+}*/

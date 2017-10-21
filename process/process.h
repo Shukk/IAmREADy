@@ -56,6 +56,12 @@ void putpixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel);
 
 Uint8 getGreyPixel(SDL_Surface *img, int i, int j);
 
+void convolution(SDL_Surface *img, int **mat, int div, int size);
+
+void gaussian(SDL_Surface *img);
+
+void contrast(SDL_Surface *img); 
+
 //--------------------
 //		PROCESS
 //--------------------

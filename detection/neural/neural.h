@@ -19,7 +19,7 @@ struct Synapse {
 };
 
 //return a new and fresh synapse
-Synapse newSynapse();
+Synapse newSynapse(size_t nbInputs);
 
 
 typedef struct Neuron Neuron;
@@ -32,7 +32,7 @@ struct Neuron {
 };
 
 //return a new and fresh neuron
-Neuron newNeuron();
+Neuron newNeuron(size_t nbInputs);
 
 
 //--------------------
@@ -91,13 +91,13 @@ void killNetwork(Network *network);
 //EXAMPLE in a network with 2 inputs:
 //  size_t inputs[2] = {1, 1};
 //  double result = forwardProp(&network, &inputs);
-double forwardProp(Network *network, double *inputs);
+double* forwardProp(Network *network, double *inputs);
 
 //execute the backpropagation
 //outpout is the outpout of a forward prop
 //EXAMPLE
 // backprob(&network, 0, 1)
-void backProp(Network *network, double wantedOutput, double output);
+void backProp(Network *network, double *wantedOutput, double *output);
 
 void updateWeightsDelta(Network *network);
 void updateWeights(Network *network);
@@ -106,7 +106,7 @@ void learning(
     Network *network, 
     size_t nbData, 
     double **in, 
-    double *out,
+    double **out,
     double learningRate,
     double errorMax,
     double momentum,
