@@ -1,23 +1,25 @@
 // color_process.h
- 
+
+
 # ifndef _PROCESS_H_
 # define _PROCESS_H_
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <err.h> 
-#include <SDL.h>
-#include <SDL_image.h>
- 
+#include <err.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
+
 //--------------------
-//		IMAGE
+//        IMAGE
 //--------------------
 
 typedef struct Image Image;
 struct Image{
     size_t cols; //columns
     size_t lines; //lines
-    size_t **matrix; //array with one pixel (black/white) in each case 
+    size_t **matrix; //array with one pixel (black/white) in each case
 };
 
 
@@ -36,8 +38,15 @@ Image resize(Image *image, size_t newLines, size_t newCols);
 //resize the image with propotion
 Image resizeWithProp(Image *image, size_t max);
 
+//rotates the image according to the angle "angle"
+Image *rotation(Image *src_img,int angle);
+
+float min(float x1,float x2);
+
+float max(float x1,float x2);
+
 //--------------------
-//		SDL
+//        SDL
 //--------------------
 
 void wait_for_keypressed(void);
@@ -60,10 +69,10 @@ void convolution(SDL_Surface *img, int **mat, int div, int size);
 
 void gaussian(SDL_Surface *img);
 
-void contrast(SDL_Surface *img); 
+void contrast(SDL_Surface *img);
 
 //--------------------
-//		PROCESS
+//        PROCESS
 //--------------------
 
 void greyscale(SDL_Surface *img);
@@ -73,5 +82,5 @@ void otsu(SDL_Surface *img);
 Image binarize(SDL_Surface *img);
 
 void colorProcess();
- 
+
 # endif

@@ -1,5 +1,5 @@
 #include "process.h"
-
+#include <math.h>
 
 void greyscale(SDL_Surface *img){
 
@@ -136,4 +136,59 @@ void colorProcess(char *path)
     display_image(load_image("image2.jpg"));
     killImage(&res);
     SDL_FreeSurface(img);
+}
+
+Image *rotation(Image *src_img,int angle){
+    /*Image dst_img=newImage(src_img->lines,src_img->cols);
+
+    float rad=(2*3.1416*angle)/360;
+    float cosi =(float)cos(rad);
+    float sini =(float)sin(rad);
+
+    float x1=(-src_img->lines*sini);
+    float y1=(src_img->lines*cosi);
+    float x2=(src_img->cols*cosi-src_img->lines*sini);
+    float y2=(src_img->lines*cosi+src_img->cols*sini);
+    float x3=(src_img->cols*cosi);
+    float y3=(src_img->cols*sini);
+
+
+    float minx=min(0,min(x1,min(x2,x3)));
+    float miny=min(0,min(y1,min(y2,y3)));
+    float maxx=max(x1,max(x2,x3));
+    float maxy=max(y1,max(y2,y3));
+
+    int dst_img_w=(int)ceil(fabs(maxx)-minx);
+    int dst_img_h=(int)ceil(fabs(maxy)-miny);
+
+    dst_img->lines=dst_img_h;
+    dst_img->cols=dst_img_w;
+
+    for (int x=0;x<dst_img_w;x++){
+        for (int y=0;y<dst_img_h;y++){
+            int src_img_x=(int)((x+minx)*cosi+(y+miny)*sini);
+            int src_img_y=(int)((y+miny)*cosi-(x+minx)*sini);
+            if(src_img_x>=0 && src_img_x<src_img->cols && src_img_y>=0 
+                && src_img_y<src_img->lines){
+                dst_img.matrix[x][y]=src_img.matrix[src_img_x][src_img_y];
+            }
+        }
+    }
+    return &dst_img;*/
+    angle++;
+    return src_img;
+}
+
+float min(float x1,float x2){
+    if (x1<x2){
+        return x1;
+    }
+    return x2;
+}
+
+float max(float x1,float x2){
+    if(x1>x2){
+        return x1;
+    }
+    return x2;
 }

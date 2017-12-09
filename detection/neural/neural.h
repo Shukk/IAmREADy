@@ -1,12 +1,13 @@
-#ifndef _NEURAL_H_                                                 
-#define _NEURAL_H_ 
+#include"../detection.h"
+#ifndef _NEURAL_H_
+#define _NEURAL_H_
 
 #include<stdlib.h>
 #include<stdio.h>
 #include<math.h>
 #include<err.h>
 
-#include"../detection.h"
+#include<omp.h>
 
 //--------------------
 //       NEURON
@@ -16,10 +17,14 @@ typedef struct Synapse Synapse;
 struct Synapse {
     double weight;
     double delta;
+    double sumDelta;
 };
+
 
 //return a new and fresh synapse
 Synapse newSynapse(size_t nbInputs);
+
+Synapse copySynapse(Synapse s);
 
 
 typedef struct Neuron Neuron;
@@ -34,9 +39,10 @@ struct Neuron {
 //return a new and fresh neuron
 Neuron newNeuron(size_t nbInputs);
 
+Neuron copyNeuron(Neuron n);
 
 //--------------------
-//		NETWORK
+//        NETWORK
 //--------------------
 
 //function "structure" in order to add functions like sigmoid
@@ -52,6 +58,11 @@ struct Network {
 
     size_t hiddenLayers;
 
+    size_t logisticId;
+
+    func_t logistic;
+    func_t logisticPrime;
+
     //in order to loop in layersSizes you need to add 2 to hiddenLayers
     //due to the input layer
     size_t *layersSizes;
@@ -59,10 +70,7 @@ struct Network {
     Neuron **neurons;
     Synapse ***synapses;
 
-    size_t logisticId;
-
-    func_t logistic;
-    func_t logisticPrime;
+    char *outTrans;
 };
 
 //return a new network
@@ -75,11 +83,13 @@ struct Network {
 //  size_t tab[2] = {2,1,1};
 //  Network net = newNetwork(&tab, 1, sigmoid);
 Network newNetwork(
-    size_t *layersSizes, 
-    size_t hiddenLayers, 
-    size_t logisticId);
+    size_t *layersSizes,
+    size_t hiddenLayers,
+    size_t logisticId,
+    char *outTrans);
 
 void reinitNetwork(Network *network);
+void reinitSumDelta(Network *network);
 
 //free all memory spaces use by the Network so kill it
 //EXAMPLE :
@@ -102,27 +112,32 @@ void backProp(Network *network, double *wantedOutput, double *output);
 void updateWeightsDelta(Network *network);
 void updateWeights(Network *network);
 
-void learning(
-    Network *network, 
-    size_t nbData, 
-    double **in, 
+size_t learning(
+    Network *network,
+    size_t nbData,
+    double **in,
     double **out,
     double learningRate,
     double errorMax,
     double momentum,
     size_t maxEpochs);
 
-void learningFile(Network *network, char path[]);
+void learningFile(Network *network, char netPath[], char path[], size_t learn);
 
-void createTraining(char filePath[], char imagePath[]);
+void createTraining(char filePath[], char netPath[], char imagePath[]);
+void createFinalTraining(/*char filePath[], char netPath[]*/);
 
 //print the network in the console
 void printNetwork(Network *network);
 void printWeights(Network *network);
 
+
+void saveNetwork(Network *network, char path[]);
+Network loadNetwork(char* path);
+
 //TODELETE
-void testXOR();
-void testAND();
+//void testXOR();
+//void testAND();
 
 
 //--------------------

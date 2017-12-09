@@ -1,1 +1,15 @@
-TODO
+IAmREADy is an occular characters recognition application.
+How to use it?
+./main 1 {src} launch the image process. it takes the image's path and apply
+  noise reduction, otsu and greyscale to the image.
+./main 2 {src} {net} {dest} launch the ocr as a demo. (it will show the
+  image process and the network process character by character and save 
+  it at the destination).
+./main 3 {dest} create a new neural network and save its values to the 
+  destination.
+./main 4 {src} {dest} create an image training training from the image's path 
+  and save it to the destination.
+./main 5 {net} {data} use a network created before and train it with data from
+  a network training result (the fourth choice).
+./main 6 {net} {data} apply the forward propagation fonction on the saved data
+  that result from a network training or from a created training.
